@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOLTX SMS — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#ffc400;--bg:#f4f6f9;--card:#fff;--text:#182334;--muted:#778396;--side:#737d86;--line:#e4e8ee;--danger:#ef5350;--success:#20b879}
+*{box-sizing:border-box}body{margin:0;font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}.app{min-height:100vh}.top{height:64px;background:var(--accent);display:flex;align-items:center;padding:0 22px;position:sticky;top:0;z-index:20}.hamb{font-size:27px;background:none;border:0;cursor:pointer;color:#202833}.brand{font-size:22px;font-weight:800;margin-left:18px;letter-spacing:.5px}.clock{margin-left:auto;font-weight:700}.layout{display:flex}.sidebar{width:270px;background:var(--side);min-height:calc(100vh - 64px);color:#fff;padding:22px 15px;position:fixed;top:64px;left:0;bottom:0;z-index:15;transition:.25s}.sidebar.hide{transform:translateX(-100%)}.logo{font-size:31px;letter-spacing:2px;padding:10px 15px 2px}.tag{font-size:9px;letter-spacing:5px;margin:0 15px 25px;color:#f4f6f9}.profile{border-top:1px solid #59636d;border-bottom:1px solid #59636d;padding:20px 8px}.avatar{width:48px;height:48px;border:3px solid #dce1e5;border-radius:6px;display:inline-grid;place-items:center;font-size:25px;vertical-align:middle}.pname{display:inline-block;margin-left:12px;font-weight:800;color:var(--accent)}.small{font-size:12px;color:#e5e8ea;margin-top:10px}.account{padding:18px 8px;border-bottom:1px solid #59636d;color:var(--accent);font-size:13px}.nav{margin-top:16px}.nav button{width:100%;border:0;background:transparent;color:#edf0f2;padding:14px 16px;text-align:left;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;margin:3px 0}.nav button.active{background:var(--accent);color:#1b2530}.nav button:hover{background:#89929a}.nav .sub{padding-left:44px;font-weight:600;font-size:13px}.content{margin-left:270px;width:calc(100% - 270px);padding:28px;transition:.25s}.content.full{margin-left:0;width:100%}.page{display:none}.page.active{display:block}.hero{background:var(--card);border-left:7px solid var(--accent);border-radius:0 14px 14px 0;padding:28px;box-shadow:0 7px 20px #1c2b3b12;margin-bottom:24px}.hero h1{margin:0 0 10px;font-size:30px}.hero p{margin:0;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 3px 12px #1c2b3b08}.stat .n{font-size:30px;font-weight:800}.stat .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:2px;margin-top:6px}.section{margin-top:24px}.section h2{margin:0 0 14px}.apps{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}.appcard{padding:28px 16px;text-align:center;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.appicon{font-size:42px;margin-bottom:12px}.appcard h3{margin:5px 0}.muted{color:var(--muted)}.toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}.input,.select{background:#fff;border:1px solid #ccd3db;border-radius:9px;padding:12px 14px;outline:none}.btn{border:0;border-radius:9px;background:var(--accent);color:#182334;font-weight:800;padding:12px 18px;cursor:pointer}.btn.secondary{background:#e8ecf0}.table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}.table th,.table td{text-align:left;padding:14px;border-bottom:1px solid var(--line);font-size:13px}.table th{background:#f7f9fb;color:#748093}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#e8f8f1;color:#16865d;font-weight:700;font-size:11px}.endpoint{background:#101722;color:#eaf0f6;padding:18px;border-radius:10px;overflow:auto;font-size:13px;line-height:1.7}.method{color:#ffd028;font-weight:800}.settings{display:grid;grid-template-columns:1fr 1fr;gap:16px}.setting{display:flex;justify-content:space-between;align-items:center;padding:16px;background:#fff;border:1px solid var(--line);border-radius:10px}.support{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;background:#ff7d20;color:white;display:grid;place-items:center;font-size:28px;box-shadow:0 8px 24px #ff7d2050}.notice{background:#fff8df;border:1px solid #f2d66c;padding:14px;border-radius:10px;margin-bottom:18px;color:#604c00}.modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modalbox{background:#fff;max-width:680px;width:100%;border-radius:14px;padding:24px;max-height:90vh;overflow:auto}.close{float:right;border:0;background:none;font-size:24px;cursor:pointer}
+@media(max-width:900px){.sidebar{width:245px}.content{margin-left:0;width:100%;padding:18px}.grid{grid-template-columns:repeat(2,1fr)}.apps{grid-template-columns:repeat(2,1fr)}.settings{grid-template-columns:1fr}.clock{font-size:12px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr 1fr;gap:9px}.card{padding:15px}.hero{padding:20px}.apps{grid-template-columns:1fr 1fr}.appcard{padding:20px 8px}.brand{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><button class="hamb" onclick="toggleSide()">☰</button><div class="brand">VOLTX SMS</div><div class="clock" id="clock">UTC+0</div></header>
+<div class="layout">
+<aside class="sidebar" id="side">
+<div class="logo">VOLTX SMS</div><div class="tag">PREMIUM RATES</div>
+<div class="profile"><span class="avatar">👤</span><span class="pname">ACCOUNT</span><div class="small">Level: Client &nbsp; • &nbsp; Profile</div></div>
+<div class="account">Account Code: <b>DEMO-001</b></div>
+<nav class="nav">
+<button class="active" onclick="showPage('dashboard',this)">◉ Dashboard</button>
+<button onclick="showPage('dialer',this)">☎ Dialer Panel</button>
+<button onclick="showPage('number',this)">▣ Get Number</button>
+<button onclick="showPage('console',this)">▤ Console</button>
+<button onclick="showPage('summary',this)">▥ Summary</button>
+<button onclick="showPage('access',this)">♢ Access List</button>
+<button onclick="showPage('ranges',this)">▤ Sender / Range</button>
+<button onclick="showPage('terminal',this)">⌁ 2oo9 Terminal</button>
+<button onclick="showPage('account',this)">● Account</button>
+<button onclick="showPage('profile',this)">👤 Profile</button>
+<button onclick="showPage('payment',this)">▣ Payment</button>
+<button onclick="alert('Demo logout')">↪ Logout</button>
+</nav></aside>
+
+<main class="content" id="content">
+<section class="page active" id="dashboard"><div class="hero"><h1>📄 Dashboard</h1><p>Overview of your SMS platform activity.</p></div>
+<div class="grid"><div class="card stat"><div class="n">7</div><div class="l">SMS Today</div></div><div class="card stat"><div class="n">100</div><div class="l">My Numbers</div></div><div class="card stat"><div class="n">0</div><div class="l">Unpaid</div></div><div class="card stat"><div class="n">$0.00</div><div class="l">Revenue</div></div></div>
+<div class="section"><h2>Top Applications Access</h2><div class="apps"><div class="appcard"><div class="appicon">◉</div><h3>WhatsApp</h3><div class="muted">117,722 messages</div></div><div class="appcard"><div class="appicon">●</div><h3>Apple</h3><div class="muted">32,409 messages</div></div><div class="appcard"><div class="appicon">♪</div><h3>TikTok</h3><div class="muted">28,500 messages</div></div><div class="appcard"><div class="appicon">▦</div><h3>Microsoft</h3><div class="muted">22,263 messages</div></div></div></div></section>
+
+<section class="page" id="dialer"><div class="hero"><h1>☎ Dialer Panel</h1><p>Demo interface for number management.</p></div><div class="card"><div class="toolbar"><input class="input" placeholder="Range e.g. 26134"><button class="btn" onclick="demo('Number allocated (demo only)')">Get Number</button></div><table class="table"><thead><tr><th>Country</th><th>Range</th><th>Stock</th><th>Status</th></tr></thead><tbody><tr><td>Nigeria</td><td>7730</td><td>100</td><td><span class="pill">Available</span></td></tr><tr><td>United Kingdom</td><td>26134</td><td>42</td><td><span class="pill">Available</span></td></tr></tbody></table></div></section>
+
+<section class="page" id="number"><div class="hero"><h1>▣ Get Number</h1><p>Frontend demo — no live allocation or OTP service is connected.</p></div><div class="notice">For safety, this template does not connect to OTP retrieval/global SMS-feed endpoints. You can connect a legitimate internal inventory service with appropriate authorization.</div><div class="card"><div class="toolbar"><input class="input" id="rid" placeholder="Range ID"><button class="btn" onclick="demo('Demo number: +44 7404 333228')">Allocate Demo Number</button></div><div id="result" class="muted">No number allocated.</div></div></section>
+
+<section class="page" id="console"><div class="hero"><h1>▤ Console</h1><p>Demo event console.</p></div><div class="card"><div class="toolbar"><input class="input" id="search" placeholder="Search events..." oninput="filterRows()"></div><table class="table" id="eventTable"><thead><tr><th>Time</th><th>Range</th><th>Service</th><th>Event</th></tr></thead><tbody><tr><td>17:42:19</td><td>22501XXX</td><td>WhatsApp</td><td>Demo event</td></tr><tr><td>17:41:05</td><td>8801XXX</td><td>Telegram</td><td>Demo event</td></tr></tbody></table></div></section>
+
+<section class="page" id="summary"><div class="hero"><h1>▥ Summary</h1><p>Statistics by date range.</p></div><div class="card"><div class="toolbar"><input class="input" type="date" value="2026-08-29"><input class="input" type="date" value="2026-08-29"><button class="btn" onclick="demo('Demo statistics loaded')">Get SMS</button></div><table class="table"><thead><tr><th>Range</th><th>Count</th><th>Paid</th><th>Unpaid</th><th>Revenue</th></tr></thead><tbody><tr><td>NIGERIA 7730</td><td>7</td><td>7</td><td>0</td><td>$0.08</td></tr></tbody></table></div></section>
+
+<section class="page" id="access"><div class="hero"><h1>♢ Access List</h1><p>Application access configuration.</p></div><div class="card"><table class="table"><tr><th>Service</th><th>Access</th><th>Status</th></tr><tr><td>WhatsApp</td><td>Default</td><td><span class="pill">Enabled</span></td></tr><tr><td>Apple</td><td>Default</td><td><span class="pill">Enabled</span></td></tr></table></div></section>
+
+<section class="page" id="ranges"><div class="hero"><h1>▤ Sender / Range</h1><p>Manage authorized sender/range records.</p></div><div class="card"><table class="table"><tr><th>Country</th><th>Range</th><th>Operator</th><th>Status</th></tr><tr><td>Nigeria</td><td>7730XXX</td><td>Demo Operator</td><td><span class="pill">Active</span></td></tr><tr><td>United Kingdom</td><td>26134XXX</td><td>Demo Operator</td><td><span class="pill">Active</span></td></tr></table></div></section>
+
+<section class="page" id="terminal"><div class="hero"><h1>⌁ 2oo9 Terminal</h1><p>API documentation and request examples.</p></div><div class="notice"><b>Security:</b> never put a private API token directly into public HTML/JavaScript. Use a server-side environment variable and a backend proxy.</div><div class="card"><h3>Public API example</h3><p class="muted">The following is a documentation-only example; this template does not execute the request.</p><pre class="endpoint"><span class="method">POST</span> /@public/api/getnum
+
+Headers:
+mauthapi: &lt;SERVER_SIDE_API_KEY&gt;
+
+Body:
+{ "rid": "26134" }</pre><button class="btn" onclick="openModal()">View API Docs</button></div></section>
+
+<section class="page" id="account"><div class="hero"><h1>● Account</h1><p>Account overview.</p></div><div class="grid"><div class="card"><b>Account Code</b><p>DEMO-001</p></div><div class="card"><b>Plan</b><p>Client</p></div></div></section>
+<section class="page" id="profile"><div class="hero"><h1>👤 Profile</h1><p>Profile settings.</p></div><div class="card"><label>Name</label><input class="input" style="width:100%;margin:8px 0 16px" value="Account User"><label>Email</label><input class="input" style="width:100%;margin:8px 0 16px" value="user@example.com"><button class="btn" onclick="demo('Profile saved in demo mode')">Save</button></div></section>
+<section class="page" id="payment"><div class="hero"><h1>▣ Payment</h1><p>Payment history and balance.</p></div><div class="card"><div class="grid"><div><b>Balance</b><h2>$0.00</h2></div><div><b>Unpaid</b><h2>$0.00</h2></div></div></div></section>
+</main></div><button class="support" onclick="demo('Support widget — demo')">▤</button>
+<div class="modal" id="modal"><div class="modalbox"><button class="close" onclick="closeModal()">×</button><h2>API Documentation</h2><p class="muted">Keep API credentials server-side. This UI intentionally contains no live token.</p><h3>Authentication</h3><pre class="endpoint">mauthapi: &lt;your_server_side_api_key&gt;</pre><h3>Request</h3><pre class="endpoint"><span class="method">POST</span> /@public/api/getnum
+
+{ "rid": "26134" }</pre><h3>Response envelope</h3><pre class="endpoint">{ "meta": { "code": 200, "status": "ok" },
+  "data": { "full_number": "..." },
+  "message": "number allocated",
+  "rid": "..." }</pre></div></div>
+<script>
+function toggleSide(){document.getElementById('side').classList.toggle('hide')}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');if(innerWidth<900)document.getElementById('side').classList.add('hide');scrollTo(0,0)}
+function demo(msg){alert(msg)}
+function openModal(){document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function filterRows(){let q=document.getElementById('search').value.toLowerCase();document.querySelectorAll('#eventTable tbody tr').forEach(r=>r.style.display=r.innerText.toLowerCase().includes(q)?'':'none')}
+function tick(){document.getElementById('clock').textContent=new Date().toUTCString().slice(17,25)+' UTC+0'}tick();setInterval(tick,1000)
+</script>
+</body></html>
