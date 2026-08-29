@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPRN PRO - Cyber Executive Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#060911',
+                            card: '#0d1322',
+                            border: '#1e293b',
+                            accent: '#00f2fe',
+                            purple: '#7928ca',
+                            pink: '#ff0080',
+                            green: '#10b981',
+                            amber: '#f59e0b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #05070d;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(121, 40, 202, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 242, 254, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(255, 0, 128, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+        }
+
+        .glass-panel {
+            background: rgba(13, 19, 34, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(0, 242, 254, 0.25);
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 25px -5px rgba(0, 242, 254, 0.3);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #7928ca 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05070d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f2fe;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                        <i class="fa-solid fa-bolt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-extrabold tracking-wider text-gradient">IPRN PRO</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800/50">PRO v2.5</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-mono">Telecom & Live SMS Stream Hub</p>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex items-center space-x-3">
+                    <!-- Upload Number Quick Button -->
+                    <button onclick="openModal('uploadModal')" class="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Upload Numbers</span>
+                    </button>
+
+                    <!-- API Token Status -->
+                    <button onclick="openModal('tokenModal')" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-mono transition">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="tokenDisplay" class="text-slate-300">API Connected</span>
+                    </button>
+
+                    <!-- Auto Refresh Toggle -->
+                    <button id="autoRefreshBtn" onclick="toggleAutoRefresh()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-cyan-400 transition" title="Auto Refresh Stream">
+                        <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Stat Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Today SMS Volume</p>
+                        <h3 id="statTotalSMS" class="text-2xl font-bold font-mono text-white mt-1">1,420</h3>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                        <i class="fa-solid fa-comments text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center text-xs text-emerald-400 font-mono">
+                    <i class="fa-solid fa-circle text-[8px] animate-ping mr-1.5"></i> Live Feed Active
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Allocated Numbers</p>
+                        <h3 id="statAssignedNumbers" class="text-2xl font-bold font-mono text-white mt-1">86</h3>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                        <i class="fa-solid fa-phone-volume text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center text-xs text-purple-400 font-mono">
+                    <i class="fa-solid fa-globe text-[10px] mr-1"></i> Global Coverage
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Active Sub-Users</p>
+                        <h3 id="statSubUsers" class="text-2xl font-bold font-mono text-white mt-1">12</h3>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                        <i class="fa-solid fa-users text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center text-xs text-pink-400 font-mono">
+                    <i class="fa-solid fa-shield text-[10px] mr-1"></i> Managed Tiers
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Estimated Revenue</p>
+                        <h3 id="statRevenue" class="text-2xl font-bold font-mono text-emerald-400 mt-1">$428.50</h3>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <i class="fa-solid fa-wallet text-lg"></i>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center text-xs text-emerald-400 font-mono">
+                    <i class="fa-solid fa-arrow-trend-up text-[10px] mr-1"></i> +14.2% Today
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar & Controls -->
+        <div class="glass-panel p-2.5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-3">
+            <!-- Navigation Tabs -->
+            <nav class="flex space-x-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800/80 w-full md:w-auto">
+                <button id="tab-edr" onclick="switchTab('edr')" class="tab-btn active px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Live SMS Logs</span>
+                </button>
+                <button id="tab-numbers" onclick="switchTab('numbers')" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-list-ol"></i>
+                    <span>Assigned Numbers</span>
+                </button>
+                <button id="tab-subusers" onclick="switchTab('subusers')" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Sub-Users</span>
+                </button>
+            </nav>
+
+            <!-- Tools & Action Buttons -->
+            <div class="flex flex-wrap items-center space-x-2 w-full md:w-auto justify-end">
+                <!-- Search Box -->
+                <div class="relative flex-grow sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+                    <input type="text" id="searchInput" oninput="renderCurrentTab()" placeholder="Search sender, number, OTP..." 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono transition">
+                </div>
+
+                <!-- Add/Upload Action Buttons for Tabs -->
+                <button onclick="openModal('uploadModal')" class="px-3.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Add Numbers</span>
+                </button>
+                <button onclick="openModal('subUserModal')" class="px-3.5 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                    <span>Add Sub-User</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT 1: LIVE SMS LOGS -->
+        <section id="section-edr" class="space-y-4">
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800/80 flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                        <h2 class="font-bold text-sm text-white">Live SMS Stream Logs</h2>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400">Realtime Message Intercept</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs font-sans">
+                        <thead>
+                            <tr class="bg-slate-950/80 text-slate-400 font-mono uppercase tracking-wider text-[11px] border-b border-slate-800">
+                                <th class="py-3.5 px-4">Timestamp</th>
+                                <th class="py-3.5 px-4">Sender (A-Num)</th>
+                                <th class="py-3.5 px-4">Receiver (B-Num)</th>
+                                <th class="py-3.5 px-4">Destination</th>
+                                <th class="py-3.5 px-4">Extracted OTP / Text</th>
+                                <th class="py-3.5 px-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="edrTableBody" class="divide-y divide-slate-800/50 font-mono">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT 2: ASSIGNED NUMBERS -->
+        <section id="section-numbers" class="space-y-4 hidden">
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800/80 flex justify-between items-center">
+                    <h2 class="font-bold text-sm text-white">Assigned Telecom Numbers List</h2>
+                    <button onclick="openModal('uploadModal')" class="px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-mono hover:bg-cyan-500/20 transition">
+                        + Batch Upload
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs font-sans">
+                        <thead>
+                            <tr class="bg-slate-950/80 text-slate-400 font-mono uppercase tracking-wider text-[11px] border-b border-slate-800">
+                                <th class="py-3.5 px-4">Destination</th>
+                                <th class="py-3.5 px-4">Phone Number</th>
+                                <th class="py-3.5 px-4">Tariff Rate</th>
+                                <th class="py-3.5 px-4">Assigned Sub-User</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="numbersTableBody" class="divide-y divide-slate-800/50 font-mono">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT 3: SUB-USERS -->
+        <section id="section-subusers" class="space-y-4 hidden">
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800/80 flex justify-between items-center">
+                    <h2 class="font-bold text-sm text-white">Sub-Users Directory</h2>
+                    <button onclick="openModal('subUserModal')" class="px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/30 rounded-lg text-xs font-mono hover:bg-purple-500/20 transition">
+                        + New User
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs font-sans">
+                        <thead>
+                            <tr class="bg-slate-950/80 text-slate-400 font-mono uppercase tracking-wider text-[11px] border-b border-slate-800">
+                                <th class="py-3.5 px-4">User ID</th>
+                                <th class="py-3.5 px-4">Username / Email</th>
+                                <th class="py-3.5 px-4">Assigned Numbers</th>
+                                <th class="py-3.5 px-4">Commission Share</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subusersTableBody" class="divide-y divide-slate-800/50 font-mono">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="glass-panel border-t border-slate-800/80 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 font-mono">
+            &copy; 2026 IPRN PRO TELECOM NETWORK. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- MODAL 1: UPLOAD NUMBERS MODAL -->
+    <div id="uploadModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full rounded-2xl p-6 border border-slate-700 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i>
+                    <span>Upload Telecom Numbers</span>
+                </h3>
+                <button onclick="closeModal('uploadModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form onsubmit="handleUploadNumbers(event)" class="mt-4 space-y-4 text-xs font-mono">
+                <div>
+                    <label class="block text-slate-300 mb-1">Destination / Country Name</label>
+                    <input type="text" id="modalDest" required placeholder="e.g. UK Premium / Latvia" 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">Phone Numbers (One per line or comma separated)</label>
+                    <textarea id="modalNumbers" required rows="4" placeholder="+447911123456&#10;+447911123457&#10;+37120000000" 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 mb-1">Tariff Rate ($/min or $/SMS)</label>
+                        <input type="text" id="modalRate" required placeholder="0.15 $" 
+                            class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-1">Assign to Sub-User</label>
+                        <select id="modalSubUser" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500">
+                            <option value="Unassigned">Unassigned (Main Pool)</option>
+                            <option value="cyber_king">cyber_king</option>
+                            <option value="telecom_pro">telecom_pro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal('uploadModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-lg shadow-cyan-500/20">Submit & Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ADD SUB-USER MODAL -->
+    <div id="subUserModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-2xl p-6 border border-slate-700 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus text-purple-400"></i>
+                    <span>Create New Sub-User Account</span>
+                </h3>
+                <button onclick="closeModal('subUserModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form onsubmit="handleAddSubUser(event)" class="mt-4 space-y-4 text-xs font-mono">
+                <div>
+                    <label class="block text-slate-300 mb-1">Username / Handle</label>
+                    <input type="text" id="modalUsername" required placeholder="e.g. agent_alpha" 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">Commission Share (%)</label>
+                    <input type="number" id="modalCommission" required placeholder="75" min="1" max="100" 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal('subUserModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: API TOKEN MODAL -->
+    <div id="tokenModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-2xl p-6 border border-slate-700 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-key text-amber-400"></i>
+                    <span>API Authentication Token</span>
+                </h3>
+                <button onclick="closeModal('tokenModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="mt-4 space-y-4 text-xs font-mono">
+                <div>
+                    <label class="block text-slate-300 mb-1">Current Active Key</label>
+                    <input type="password" value="iprn_live_9982310x_secret_token_key" readonly 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-slate-400">
+                </div>
+                <div class="pt-2 flex justify-end">
+                    <button onclick="closeModal('tokenModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State Management Data
+        let activeTab = 'edr';
+        let autoRefresh = true;
+
+        let edrLogs = [
+            { time: '2026-08-29 21:58:12', sender: '+447812345678', receiver: '+37128901122', dest: 'Latvia Premium', msg: 'Your Verification Code is 849201. Valid for 5 min.' },
+            { time: '2026-08-29 21:57:40', sender: '+12025550143', receiver: '+447911223344', dest: 'UK Virtual', msg: 'Google OTP: 392019. Do not share with anyone.' },
+            { time: '2026-08-29 21:55:01', sender: '+33612345678', receiver: '+37128901123', dest: 'Latvia Premium', msg: 'WhatsApp code: 112-940' },
+            { time: '2026-08-29 21:50:33', sender: '+491512345678', receiver: '+37258990111', dest: 'Estonia Mobile', msg: 'Your Login PIN is 9942' }
+        ];
+
+        let assignedNumbers = [
+            { dest: 'Latvia Premium', number: '+37128901122', rate: '$0.18 / SMS', subuser: 'cyber_king', status: 'Active' },
+            { dest: 'Latvia Premium', number: '+37128901123', rate: '$0.18 / SMS', subuser: 'telecom_pro', status: 'Active' },
+            { dest: 'UK Virtual', number: '+447911223344', rate: '$0.12 / SMS', subuser: 'cyber_king', status: 'Active' },
+            { dest: 'Estonia Mobile', number: '+37258990111', rate: '$0.15 / SMS', subuser: 'Unassigned', status: 'Active' }
+        ];
+
+        let subUsers = [
+            { id: 'USR-101', name: 'cyber_king', count: 42, commission: '80%', status: 'Active' },
+            { id: 'USR-102', name: 'telecom_pro', count: 28, commission: '75%', status: 'Active' },
+            { id: 'USR-103', name: 'alpha_stream', count: 16, commission: '70%', status: 'Suspended' }
+        ];
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCurrentTab();
+            updateStatCounters();
+        });
+
+        // Switch Tabs
+        function switchTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-gradient-to-r', 'from-cyan-500', 'to-blue-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-400');
+            });
+
+            const currentBtn = document.getElementById(`tab-${tab}`);
+            currentBtn.classList.add('bg-gradient-to-r', 'from-cyan-500', 'to-blue-600', 'text-white', 'shadow-md');
+            currentBtn.classList.remove('text-slate-400');
+
+            document.getElementById('section-edr').classList.add('hidden');
+            document.getElementById('section-numbers').classList.add('hidden');
+            document.getElementById('section-subusers').classList.add('hidden');
+
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+
+            renderCurrentTab();
+        }
+
+        // Render Active Tab Content
+        function renderCurrentTab() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+            if (activeTab === 'edr') {
+                const filtered = edrLogs.filter(item => 
+                    item.sender.toLowerCase().includes(searchQuery) || 
+                    item.receiver.toLowerCase().includes(searchQuery) || 
+                    item.msg.toLowerCase().includes(searchQuery) ||
+                    item.dest.toLowerCase().includes(searchQuery)
+                );
+                
+                const tbody = document.getElementById('edrTableBody');
+                tbody.innerHTML = filtered.map(row => `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="py-3 px-4 text-slate-400">${row.time}</td>
+                        <td class="py-3 px-4 text-cyan-400 font-semibold">${row.sender}</td>
+                        <td class="py-3 px-4 text-white">${row.receiver}</td>
+                        <td class="py-3 px-4 text-slate-300"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] border border-slate-700">${row.dest}</span></td>
+                        <td class="py-3 px-4 text-amber-300">${highlightOTP(row.msg)}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="copyToClipboard('${row.msg}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px]">Copy</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } else if (activeTab === 'numbers') {
+                const filtered = assignedNumbers.filter(item => 
+                    item.number.toLowerCase().includes(searchQuery) || 
+                    item.dest.toLowerCase().includes(searchQuery) ||
+                    item.subuser.toLowerCase().includes(searchQuery)
+                );
+
+                const tbody = document.getElementById('numbersTableBody');
+                tbody.innerHTML = filtered.map(row => `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="py-3 px-4 text-white font-semibold">${row.dest}</td>
+                        <td class="py-3 px-4 text-cyan-400">${row.number}</td>
+                        <td class="py-3 px-4 text-emerald-400">${row.rate}</td>
+                        <td class="py-3 px-4 text-purple-400"><span class="px-2 py-0.5 rounded bg-purple-950/60 border border-purple-800/50">${row.subuser}</span></td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/50 text-[10px]">● ${row.status}</span></td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="copyToClipboard('${row.number}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px]">Copy Num</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } else if (activeTab === 'subusers') {
+                const filtered = subUsers.filter(item => 
+                    item.name.toLowerCase().includes(searchQuery) || 
+                    item.id.toLowerCase().includes(searchQuery)
+                );
+
+                const tbody = document.getElementById('subusersTableBody');
+                tbody.innerHTML = filtered.map(row => `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="py-3 px-4 text-slate-400">${row.id}</td>
+                        <td class="py-3 px-4 text-purple-300 font-semibold">${row.name}</td>
+                        <td class="py-3 px-4 text-white">${row.count} Numbers</td>
+                        <td class="py-3 px-4 text-cyan-400">${row.commission}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded ${row.status === 'Active' ? 'bg-emerald-950 text-emerald-400 border-emerald-800/50' : 'bg-red-950 text-red-400 border-red-800/50'} border text-[10px]">
+                                ${row.status}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px]">Manage</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Highlight OTPs in SMS Message Text
+        function highlightOTP(text) {
+            return text.replace(/(\b\d{4,8}\b)/g, '<span class="bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold border border-amber-500/40">$1</span>');
+        }
+
+        // Handle Add / Upload Numbers Modal Form
+        function handleUploadNumbers(event) {
+            event.preventDefault();
+            const dest = document.getElementById('modalDest').value;
+            const numbersInput = document.getElementById('modalNumbers').value;
+            const rate = document.getElementById('modalRate').value;
+            const subuser = document.getElementById('modalSubUser').value;
+
+            const numbersList = numbersInput.split(/\r?\n/).map(n => n.trim()).filter(n => n.length > 0);
+
+            numbersList.forEach(num => {
+                assignedNumbers.unshift({
+                    dest: dest,
+                    number: num,
+                    rate: rate.includes('$') ? rate : `$${rate}`,
+                    subuser: subuser,
+                    status: 'Active'
+                });
+            });
+
+            closeModal('uploadModal');
+            updateStatCounters();
+            switchTab('numbers');
+            alert(`Successfully added ${numbersList.length} numbers to the database!`);
+        }
+
+        // Handle Add Sub-User
+        function handleAddSubUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('modalUsername').value;
+            const comm = document.getElementById('modalCommission').value;
+
+            subUsers.unshift({
+                id: `USR-${Math.floor(100 + Math.random() * 900)}`,
+                name: name,
+                count: 0,
+                commission: `${comm}%`,
+                status: 'Active'
+            });
+
+            closeModal('subUserModal');
+            updateStatCounters();
+            switchTab('subusers');
+        }
+
+        // Dynamic Counters
+        function updateStatCounters() {
+            document.getElementById('statTotalSMS').innerText = edrLogs.length + 1416;
+            document.getElementById('statAssignedNumbers').innerText = assignedNumbers.length;
+            document.getElementById('statSubUsers').innerText = subUsers.length;
+        }
+
+        // Modal Controls
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Utilities
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard: ' + text);
+        }
+
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            const btn = document.getElementById('autoRefreshBtn');
+            if (autoRefresh) {
+                btn.classList.add('text-cyan-400');
+                btn.classList.remove('text-slate-500');
+            } else {
+                btn.classList.remove('text-cyan-400');
+                btn.classList.add('text-slate-500');
+            }
+        }
+    </script>
+</body>
+</html>
