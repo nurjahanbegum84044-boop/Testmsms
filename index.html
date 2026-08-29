@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="siteTitleTag">IVAS SMS - Premium Rates Portal</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ivas-yellow: #fec20c;
+            --ivas-dark-yellow: #f1b500;
+            --sidebar-bg: #73808c;
+            --sidebar-hover: #63707c;
+            --sidebar-active-item: #596570;
+            --bg-light: #f3f4f6;
+            --text-dark: #2c3e50;
+            --card-border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Live Toast Notification */
+        .top-toast {
+            position: fixed;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .top-toast.show {
+            top: 15px;
+        }
+
+        /* Auth Screen (Login / Register Modal) */
+        #authScreen {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 15px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .auth-header-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .auth-sub {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .auth-tab-btn.active {
+            color: var(--text-dark);
+            border-bottom: 3px solid var(--ivas-yellow);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-auth-submit {
+            background: var(--ivas-yellow);
+            border: none;
+            padding: 12px;
+            font-weight: 800;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Top Header */
+        header {
+            background-color: var(--ivas-yellow);
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #1a1a1a;
+        }
+
+        .utc-clock-box {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* App Layout */
+        .app-body {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+
+        /* Sidebar UI */
+        aside {
+            width: 275px;
+            background-color: var(--sidebar-bg);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 90;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 768px) {
+            aside {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                transform: translateX(-100%);
+            }
+            aside.open {
+                transform: translateX(0);
+            }
+        }
+
+        .brand-header {
+            padding: 18px 15px 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .brand-title {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 3px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        /* User Profile Card */
+        .user-box {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-card-top {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .avatar-placeholder {
+            width: 48px;
+            height: 60px;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #ffffff;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            color: var(--ivas-yellow);
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .user-level {
+            color: var(--ivas-yellow);
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+        }
+
+        .user-actions a {
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .account-code-row {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .acc-code-text {
+            color: var(--ivas-yellow);
+            font-weight: 700;
+        }
+
+        .reload-link {
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        /* Menu Items */
+        .nav-list {
+            list-style: none;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .btn-dashboard-main {
+            background-color: var(--ivas-yellow);
+            color: #1a1a1a;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .menu-parent {
+            padding: 10px 15px;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .menu-parent:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .menu-parent-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .submenu-list {
+            list-style: none;
+            padding-left: 10px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .submenu-list.open {
+            display: block;
+        }
+
+        .submenu-item a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+
+        .submenu-item a:hover, .submenu-item a.active {
+            background-color: var(--sidebar-active-item);
+            color: var(--ivas-yellow);
+        }
+
+        /* Main View */
+        main {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .view-panel {
+            display: none;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        /* Dashboard Application Grid */
+        .top-app-header {
+            background: var(--ivas-yellow);
+            padding: 10px 15px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .app-card-item {
+            background: #ffffff;
+            padding: 18px 10px;
+            text-align: center;
+        }
+
+        .app-card-item i {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+
+        .app-card-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .app-card-msg {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Dashboard Stats Grid */
+        .stats-grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px 10px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-box.dark-gray {
+            background: #63707c;
+            color: #ffffff;
+        }
+
+        .stat-box.yellow-bg {
+            background: var(--ivas-yellow);
+            color: #1a1a1a;
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-lbl {
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Generic Cards & Forms */
+        .panel-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 15px;
+        }
+
+        .form-group-item {
+            margin-bottom: 12px;
+        }
+
+        .form-group-item label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .btn-submit-action {
+            width: 100%;
+            background: var(--ivas-yellow);
+            border: none;
+            padding: 11px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Table / List Elements */
+        .item-list-container {
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+        }
+
+        .sms-item-card {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .badge-number {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .copy-btn-sm {
+            background: #e2e8f0;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 6px;
+        }
+
+        .sms-text-content {
+            font-size: 0.85rem;
+            margin: 8px 0;
+            color: #334155;
+        }
+
+        .sms-time-stamp {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        /* Floating Chat Button */
+        .floating-chat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            background: #f97316;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 99;
+        }
+
+        /* Restricted Admin Badge */
+        .admin-only-badge {
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Live Toast Popup -->
+    <div id="topToast" class="top-toast">
+        <i class="fa-solid fa-bell"></i>
+        <span id="toastMsg">Welcome!</span>
+    </div>
+
+    <!-- Auth Modal (Login / Register) -->
+    <div id="authScreen">
+        <div class="auth-card">
+            <div class="auth-header-title" id="authTitleDisplay">IVAS SMS</div>
+            <div class="auth-sub">Enter credentials to access portal</div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab-btn" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUser" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPass" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn-auth-submit">Sign In</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" required placeholder="e.g. CHAD SHIKDER">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="regUser" required placeholder="Choose username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPass" required placeholder="Choose password">
+                </div>
+                <div class="form-group">
+                    <label>Account Role</label>
+                    <select id="regRole">
+                        <option value="user">Regular User (Client Portal Only)</option>
+                        <option value="admin">Administrator (Full Access)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-auth-submit">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        </div>
+        <div class="utc-clock-box">
+            <span id="liveClockDisplay">2026-08-29 16:24:00</span>
+            <i class="fa-regular fa-clock"></i>
+        </div>
+    </header>
+
+    <div class="app-body">
+        <!-- Sidebar UI Exact Replica -->
+        <aside id="mainSidebar">
+            <div class="brand-header">
+                <div class="brand-title" id="sidebarBrandTitle">IVAS SMS</div>
+                <div class="brand-subtitle" id="sidebarBrandSub">PREMIUM RATES</div>
+            </div>
+
+            <div class="user-box">
+                <div class="user-card-top">
+                    <div class="avatar-placeholder">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name" id="displayUserName">GUEST USER</div>
+                        <div class="user-level" id="displayUserRole">Level : Regular</div>
+                        <div class="user-actions">
+                            <a href="#"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="#" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="account-code-row">
+                    <span>Account Code : <strong class="acc-code-text" id="displayAccountCode">7576953967</strong></span>
+                    <a href="#" class="reload-link" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> reload</a>
+                </div>
+            </div>
+
+            <ul class="nav-list">
+                <li>
+                    <a href="#" class="btn-dashboard-main" onclick="openTab('dashboardView')">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <div class="menu-parent" onclick="toggleSubmenu('clientSubmenu')">
+                        <div class="menu-parent-left">
+                            <i class="fa-solid fa-user"></i> Client System
+                        </div>
+                        <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="submenu-list open" id="clientSubmenu">
+                        <li class="submenu-item">
+                            <a href="#" onclick="openTab('getNumView')"><i class="fa-regular fa-circle"></i> Get Number</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="#" onclick="openTab('activeSmsView')"><i class="fa-regular fa-circle"></i> Client Active SMS</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="#" onclick="openTab('myNumbersView')"><i class="fa-regular fa-circle"></i> My Numbers</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="#" onclick="openTab('consoleView')"><i class="fa-regular fa-circle"></i> My SMS Statistics</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Admin Panel Link (Only Visible to Admin Role) -->
+                <li id="adminNavMenuItem" style="display: none;">
+                    <div class="menu-parent" style="background: rgba(239, 68, 68, 0.2);" onclick="openTab('adminPanelView')">
+                        <div class="menu-parent-left">
+                            <i class="fa-solid fa-user-shield"></i> Admin Panel <span class="admin-only-badge">ADMIN</span>
+                        </div>
+                        <i class="fa-solid fa-gear" style="font-size: 0.7rem;"></i>
+                    </div>
+                </li>
+
+                <li>
+                    <div class="menu-parent">
+                        <div class="menu-parent-left">
+                            <i class="fa-solid fa-user"></i> Test System
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+                    </div>
+                </li>
+                <li>
+                    <div class="menu-parent">
+                        <div class="menu-parent-left">
+                            <i class="fa-solid fa-user"></i> Invoices system
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+                    </div>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <!-- DASHBOARD VIEW -->
+            <div id="dashboardView" class="view-panel active">
+                <div class="top-app-header">Top Applications Access</div>
+                <div class="app-grid">
+                    <div class="app-card-item">
+                        <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
+                        <span class="app-card-name">WhatsApp</span>
+                        <span class="app-card-msg">117722 message</span>
+                    </div>
+                    <div class="app-card-item">
+                        <i class="fa-brands fa-apple" style="color: #000000;"></i>
+                        <span class="app-card-name">Apple</span>
+                        <span class="app-card-msg">32409 message</span>
+                    </div>
+                    <div class="app-card-item">
+                        <i class="fa-brands fa-tiktok" style="color: #000000;"></i>
+                        <span class="app-card-name">TikTok</span>
+                        <span class="app-card-msg">28500 message</span>
+                    </div>
+                    <div class="app-card-item">
+                        <i class="fa-brands fa-microsoft" style="color: #00A4EF;"></i>
+                        <span class="app-card-name">Microsoft</span>
+                        <span class="app-card-msg">22263 message</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid-2x2">
+                    <div class="stat-box dark-gray">
+                        <div class="stat-val" id="smsTodayVal">7</div>
+                        <div class="stat-lbl">SMS ToDay</div>
+                    </div>
+                    <div class="stat-box yellow-bg">
+                        <div class="stat-val" id="myNumsCountVal">0</div>
+                        <div class="stat-lbl">My Numbers</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val" style="color: #ef4444;">0</div>
+                        <div class="stat-lbl">UNPAID</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val" style="color: #10b981;">$0.00</div>
+                        <div class="stat-lbl">REVENUE</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GET NUMBER VIEW -->
+            <div id="getNumView" class="view-panel">
+                <div class="panel-card">
+                    <h3 style="font-size: 1rem; margin-bottom: 12px;"><i class="fa-solid fa-mobile-screen"></i> Get Custom Number</h3>
+                    <div class="form-group-item">
+                        <label>Range Digits (rid):</label>
+                        <input type="text" id="ridValue" class="form-input" placeholder="e.g. 26134 (digits without XXX)">
+                    </div>
+                    <button class="btn-submit-action" onclick="requestNumber()">
+                        <i class="fa-solid fa-bolt"></i> Allocate Number
+                    </button>
+                </div>
+            </div>
+
+            <!-- CLIENT ACTIVE SMS VIEW -->
+            <div id="activeSmsView" class="view-panel">
+                <div class="panel-card">
+                    <h3 style="font-size: 1rem; margin-bottom: 12px;"><i class="fa-solid fa-comments"></i> Client Active SMS</h3>
+                    <div class="form-group-item">
+                        <label>Filter by Number / Message:</label>
+                        <input type="text" id="smsSearchInput" class="form-input" placeholder="Search number..." onkeyup="renderSMSList()">
+                    </div>
+                    <button class="btn-submit-action" onclick="loadSMSData()">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh Messages
+                    </button>
+                </div>
+
+                <div class="item-list-container" id="smsCardContainer">
+                    <div style="padding: 15px; text-align: center; font-size: 0.85rem; color: #64748b;">Click refresh to load SMS.</div>
+                </div>
+            </div>
+
+            <!-- MY NUMBERS VIEW -->
+            <div id="myNumbersView" class="view-panel">
+                <div class="panel-card">
+                    <h3 style="font-size: 1rem; margin-bottom: 5px;"><i class="fa-solid fa-list-ol"></i> My Saved Numbers</h3>
+                    <p style="font-size: 0.75rem; color: #64748b;">Numbers allocated via Get Number are saved here automatically.</p>
+                </div>
+
+                <div class="item-list-container" id="myNumbersContainer"></div>
+            </div>
+
+            <!-- CONSOLE / STATISTICS VIEW -->
+            <div id="consoleView" class="view-panel">
+                <div class="panel-card">
+                    <h3 style="font-size: 1rem; margin-bottom: 12px;"><i class="fa-solid fa-terminal"></i> Global Live Console Feed</h3>
+                    <button class="btn-submit-action" onclick="loadConsoleFeed()">Refresh Feed</button>
+                </div>
+                <div class="item-list-container" id="consoleContainer">
+                    <div style="padding: 15px; text-align: center; font-size: 0.85rem; color: #64748b;">Click refresh to load feed.</div>
+                </div>
+            </div>
+
+            <!-- ADMIN CONTROL PANEL VIEW (RESTRICTED TO ADMIN ONLY) -->
+            <div id="adminPanelView" class="view-panel">
+                <div class="panel-card" style="border-left: 4px solid #ef4444;">
+                    <h3 style="font-size: 1rem; margin-bottom: 12px; color: #ef4444;"><i class="fa-solid fa-sliders"></i> Admin System Controls</h3>
+                    <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 15px;">Modify portal settings, brand headers, and API keys. Regular users cannot access this page.</p>
+                    
+                    <div class="form-group-item">
+                        <label>Portal Title Header:</label>
+                        <input type="text" id="adminSiteTitleInput" class="form-input" placeholder="IVAS SMS">
+                    </div>
+                    <div class="form-group-item">
+                        <label>Portal Subtitle Header:</label>
+                        <input type="text" id="adminSiteSubInput" class="form-input" placeholder="PREMIUM RATES">
+                    </div>
+                    <div class="form-group-item">
+                        <label>Default Account Code:</label>
+                        <input type="text" id="adminAccountCodeInput" class="form-input" placeholder="7576953967">
+                    </div>
+                    <div class="form-group-item">
+                        <label>Global mauthapi Key:</label>
+                        <input type="text" id="adminApiKeyInput" class="form-input" placeholder="Enter API Key">
+                    </div>
+                    <button class="btn-submit-action" onclick="saveAdminSettings()">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Admin Changes
+                    </button>
+                </div>
+
+                <div class="panel-card">
+                    <h3 style="font-size: 0.95rem; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> Registered Users</h3>
+                    <div id="adminUsersList" style="font-size: 0.85rem; color: #334155;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Chat Widget Icon -->
+    <div class="floating-chat-btn">
+        <i class="fa-solid fa-comment-dots"></i>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.2oo9.cloud/MXS47FLFX0U/tnevs/@public/api';
+        let currentUser = null;
+
+        // Default Admin & Demo User Setup
+        function initSystemStorage() {
+            if(!localStorage.getItem('registered_users')) {
+                const defaultUsers = [
+                    { name: 'CHAD SHIKDER', username: 'admin', password: '123', role: 'admin' },
+                    { name: 'DEMO CLIENT', username: 'user', password: '123', role: 'user' }
+                ];
+                localStorage.setItem('registered_users', JSON.stringify(defaultUsers));
+            }
+            if(!localStorage.getItem('site_config')) {
+                const defaultConfig = {
+                    title: 'IVAS SMS',
+                    subtitle: 'PREMIUM RATES',
+                    accountCode: '7576953967',
+                    apiKey: ''
+                };
+                localStorage.setItem('site_config', JSON.stringify(defaultConfig));
+            }
+        }
+        initSystemStorage();
+
+        // Clock Update
+        function updateUTCClock() {
+            const now = new Date();
+            document.getElementById('liveClockDisplay').innerText = now.toISOString().replace('T', ' ').substring(0, 19);
+        }
+        setInterval(updateUTCClock, 1000);
+        updateUTCClock();
+
+        // Navigation Controls
+        function toggleSidebar() {
+            document.getElementById('mainSidebar').classList.toggle('open');
+        }
+
+        function toggleSubmenu(id) {
+            document.getElementById(id).classList.toggle('open');
+        }
+
+        function openTab(tabId) {
+            // Role Guard: Prevent non-admin users from accessing Admin Panel
+            if(tabId === 'adminPanelView' && currentUser?.role !== 'admin') {
+                showToast("Access Denied: Admin Rights Required!");
+                return;
+            }
+
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            if (window.innerWidth <= 768) {
+                document.getElementById('mainSidebar').classList.remove('open');
+            }
+
+            if(tabId === 'activeSmsView') loadSMSData();
+            if(tabId === 'myNumbersView') renderMyNumbers();
+            if(tabId === 'consoleView') loadConsoleFeed();
+            if(tabId === 'adminPanelView') loadAdminPanel();
+        }
+
+        // Auth Tabs Toggle
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+
+            if(tab === 'login') {
+                document.querySelectorAll('.auth-tab-btn')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab-btn')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+        }
+
+        // Handle User Registration
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const user = document.getElementById('regUser').value.trim().toLowerCase();
+            const pass = document.getElementById('regPass').value;
+            const role = document.getElementById('regRole').value;
+
+            let users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+            if(users.some(u => u.username === user)) {
+                alert("Username already exists!");
+                return;
+            }
+
+            const newUser = { name, username: user, password: pass, role };
+            users.push(newUser);
+            localStorage.setItem('registered_users', JSON.stringify(users));
+
+            showToast("Registration Successful! Logging in...");
+            loginUserSession(newUser);
+        }
+
+        // Handle User Login
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPass').value;
+
+            let users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+            const match = users.find(u => u.username === user && u.password === pass);
+
+            if(match) {
+                loginUserSession(match);
+            } else {
+                alert("Invalid Username or Password!");
+            }
+        }
+
+        function loginUserSession(userObj) {
+            currentUser = userObj;
+            localStorage.setItem('active_session', JSON.stringify(userObj));
+            document.getElementById('authScreen').style.display = 'none';
+            applySystemConfig();
+            showToast(`Welcome back, ${userObj.name}!`);
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('active_session');
+            currentUser = null;
+            location.reload();
+        }
+
+        // Apply Dynamic Site Settings & User Profile State
+        function applySystemConfig() {
+            const config = JSON.parse(localStorage.getItem('site_config'));
+            document.getElementById('siteTitleTag').innerText = `${config.title} - ${config.subtitle}`;
+            document.getElementById('sidebarBrandTitle').innerText = config.title;
+            document.getElementById('sidebarBrandSub').innerText = config.subtitle;
+            document.getElementById('authTitleDisplay').innerText = config.title;
+            document.getElementById('displayAccountCode').innerText = config.accountCode;
+
+            if(currentUser) {
+                document.getElementById('displayUserName').innerText = currentUser.name;
+                document.getElementById('displayUserRole').innerText = `Level : ${currentUser.role.toUpperCase()}`;
+
+                // Toggle Admin Menu Item
+                const adminNav = document.getElementById('adminNavMenuItem');
+                if(currentUser.role === 'admin') {
+                    adminNav.style.display = 'block';
+                } else {
+                    adminNav.style.display = 'none';
+                }
+            }
+        }
+
+        // Admin Panel Functions
+        function loadAdminPanel() {
+            const config = JSON.parse(localStorage.getItem('site_config'));
+            document.getElementById('adminSiteTitleInput').value = config.title;
+            document.getElementById('adminSiteSubInput').value = config.subtitle;
+            document.getElementById('adminAccountCodeInput').value = config.accountCode;
+            document.getElementById('adminApiKeyInput').value = config.apiKey || '';
+
+            const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+            document.getElementById('adminUsersList').innerHTML = users.map(u => `
+                <div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                    <span><strong>${u.name}</strong> (@${u.username})</span>
+                    <span class="badge-number" style="background:${u.role === 'admin' ? '#fee2e2' : '#e0f2fe'}; color:${u.role === 'admin' ? '#b91c1c' : '#0369a1'};">${u.role.toUpperCase()}</span>
+                </div>
+            `).join('');
+        }
+
+        function saveAdminSettings() {
+            const config = {
+                title: document.getElementById('adminSiteTitleInput').value.trim() || 'IVAS SMS',
+                subtitle: document.getElementById('adminSiteSubInput').value.trim() || 'PREMIUM RATES',
+                accountCode: document.getElementById('adminAccountCodeInput').value.trim() || '7576953967',
+                apiKey: document.getElementById('adminApiKeyInput').value.trim()
+            };
+            localStorage.setItem('site_config', JSON.stringify(config));
+            applySystemConfig();
+            showToast("Admin Settings Saved Successfully!");
+        }
+
+        // Clipboard Copy Helper
+        function copyText(text, label = "Text") {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`${label} copied!`);
+            }).catch(() => {
+                showToast("Failed to copy");
+            });
+        }
+
+        // Toast Alert
+        function showToast(msg) {
+            const toast = document.getElementById('topToast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // API Fetch Handler
+        async function apiFetch(endpoint, method = 'GET', data = null) {
+            const config = JSON.parse(localStorage.getItem('site_config') || '{}');
+            const token = config.apiKey || '';
+            const headers = { 'Content-Type': 'application/json' };
+            if(token) headers['mauthapi'] = token;
+
+            const opts = { method, headers };
+            if(data) opts.body = JSON.stringify(data);
+
+            try {
+                const res = await fetch(`${API_BASE}${endpoint}`, opts);
+                return await res.json();
+            } catch(e) {
+                return { meta: { code: 500 }, message: "Network Error" };
+            }
+        }
+
+        // Get Number
+        async function requestNumber() {
+            const rid = document.getElementById('ridValue').value.trim();
+            if(!rid) return alert("Enter Range Digits!");
+
+            showToast("Requesting Number...");
+            const res = await apiFetch('/getnum', 'POST', { rid: rid });
+
+            if(res && res.meta && res.meta.code === 200 && res.data) {
+                const numData = res.data;
+                const nationalNum = numData.national_number || numData.no_plus_number;
+
+                copyText(nationalNum, "National Number (" + nationalNum + ")");
+
+                let myNums = JSON.parse(localStorage.getItem('my_allocated_numbers') || '[]');
+                myNums.unshift({
+                    national: nationalNum,
+                    full: numData.full_number,
+                    country: numData.country,
+                    operator: numData.operator,
+                    time: new Date().toLocaleString()
+                });
+                localStorage.setItem('my_allocated_numbers', JSON.stringify(myNums));
+                renderMyNumbers();
+
+                alert(`Allocated: ${numData.full_number}\nNational: ${nationalNum}\nCopied to Clipboard!`);
+            } else {
+                alert("Failed: " + (res.message || "Invalid Key / Out of Stock"));
+            }
+        }
+
+        // Render Saved Numbers
+        function renderMyNumbers() {
+            const container = document.getElementById('myNumbersContainer');
+            let myNums = JSON.parse(localStorage.getItem('my_allocated_numbers') || '[]');
+            document.getElementById('myNumsCountVal').innerText = myNums.length;
+
+            if(myNums.length === 0) {
+                container.innerHTML = '<div style="padding: 15px; text-align: center; font-size: 0.85rem; color: #64748b;">No saved numbers yet.</div>';
+                return;
+            }
+
+            container.innerHTML = myNums.map(item => `
+                <div class="sms-item-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="badge-number">${item.national}</span>
+                        <button class="copy-btn-sm" onclick="copyText('${item.national}', 'Number')"><i class="fa-regular fa-copy"></i> Copy National</button>
+                    </div>
+                    <div class="sms-text-content">
+                        <strong>Full:</strong> ${item.full} | <strong>Country:</strong> ${item.country} (${item.operator})
+                    </div>
+                    <div class="sms-time-stamp"><i class="fa-regular fa-clock"></i> Allocated: ${item.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Active SMS
+        let cachedOTPs = [];
+        async function loadSMSData() {
+            const res = await apiFetch('/success-otp', 'GET');
+            if(res && res.meta && res.meta.code === 200 && res.data && res.data.otps) {
+                cachedOTPs = res.data.otps;
+                renderSMSList();
+            } else {
+                document.getElementById('smsCardContainer').innerHTML = `<div style="padding: 15px; text-align: center; color: #ef4444;">${res.message || 'Error fetching SMS'}</div>`;
+            }
+        }
+
+        function renderSMSList() {
+            const container = document.getElementById('smsCardContainer');
+            const search = document.getElementById('smsSearchInput').value.trim().toLowerCase();
+
+            let filtered = cachedOTPs.filter(item => 
+                item.number.toLowerCase().includes(search) || item.message.toLowerCase().includes(search)
+            );
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<div style="padding: 15px; text-align: center; color: #64748b;">No SMS messages found.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const otpMatch = item.message.match(/\b\d{4,8}\b/);
+                const otpCode = otpMatch ? otpMatch[0] : '';
+
+                return `
+                <div class="sms-item-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:5px;">
+                        <div>
+                            <span class="badge-number">${item.number}</span>
+                            <button class="copy-btn-sm" onclick="copyText('${item.number}', 'Number')"><i class="fa-regular fa-copy"></i> Copy Number</button>
+                        </div>
+                        ${otpCode ? `<button class="copy-btn-sm" style="background:#fef3c7; color:#b45309;" onclick="copyText('${otpCode}', 'OTP Code')"><i class="fa-solid fa-key"></i> Copy OTP (${otpCode})</button>` : ''}
+                    </div>
+                    <div class="sms-text-content">${item.message}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="sms-time-stamp"><i class="fa-regular fa-clock"></i> ${new Date(item.time).toLocaleString()}</span>
+                        <button class="copy-btn-sm" onclick="copyText(\`${item.message.replace(/`/g, '')}\`, 'Full SMS')"><i class="fa-regular fa-copy"></i> Copy SMS</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Live Feed Console
+        async function loadConsoleFeed() {
+            const container = document.getElementById('consoleContainer');
+            const res = await apiFetch('/console', 'GET');
+
+            if(res && res.meta && res.meta.code === 200 && res.data && res.data.hits) {
+                if(res.data.hits.length === 0) {
+                    container.innerHTML = '<div style="padding: 15px; text-align: center; color: #64748b;">No recent hits.</div>';
+                    return;
+                }
+                container.innerHTML = res.data.hits.map(hit => `
+                    <div class="sms-item-card">
+                        <span class="badge-number" style="background:#e0f2fe; color:#0369a1;">${hit.sid || 'Service'}</span>
+                        <span style="font-size:0.75rem; font-weight:700; margin-left:8px;">Range: ${hit.range}</span>
+                        <div class="sms-text-content">${hit.message}</div>
+                        <div class="sms-time-stamp">${new Date(hit.time).toLocaleTimeString()}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Check Session on Load
+        window.onload = function() {
+            const activeSession = localStorage.getItem('active_session');
+            if(activeSession) {
+                currentUser = JSON.parse(activeSession);
+                document.getElementById('authScreen').style.display = 'none';
+                applySystemConfig();
+                renderMyNumbers();
+            } else {
+                document.getElementById('authScreen').style.display = 'flex';
+            }
+        };
+    </script>
+</body>
+</html>
