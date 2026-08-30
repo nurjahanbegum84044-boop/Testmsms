@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="siteTitleTag">IVAS SMS - Premium Rates Portal</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ivas-yellow: #fec20c;
+            --ivas-dark-yellow: #f1b500;
+            --sidebar-bg: #73808c;
+            --sidebar-hover: #63707c;
+            --sidebar-active-item: #596570;
+            --bg-light: #f3f4f6;
+            --text-dark: #2c3e50;
+            --card-border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Live Toast Notification */
+        .top-toast {
+            position: fixed;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .top-toast.show {
+            top: 15px;
+        }
+
+        /* Auth Screen */
+        #authScreen {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 15px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .auth-header-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .auth-sub {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--ivas-yellow);
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #1a1a1a;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .utc-clock-box {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout-top {
+            background: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* App Layout */
+        .app-body {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+
+        /* Sidebar UI */
+        aside {
+            width: 270px;
+            background-color: var(--sidebar-bg);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+        @media (max-width: 768px) {
+            aside {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                transform: translateX(-100%);
+            }
+            aside.open {
+                transform: translateX(0);
+            }
+        }
+
+        .brand-header {
+            padding: 18px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .brand-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .brand-subtitle {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 15px 10px;
+        }
+
+        .btn-dashboard-main {
+            background-color: var(--ivas-yellow);
+            color: #1a1a1a;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        /* Main View Container */
+        main {
+            flex: 1;
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Number Customization Card */
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--ivas-yellow);
+        }
+
+        /* Format Options Switch Box */
+        .format-toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .format-option {
+            flex: 1;
+            text-align: center;
+        }
+
+        .format-option input[type="radio"] {
+            display: none;
+        }
+
+        .format-option label {
+            display: block;
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #64748b;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .format-option input[type="radio"]:checked + label {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-allocate {
+            width: 100%;
+            background: var(--ivas-yellow);
+            border: none;
+            padding: 13px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #1a1a1a;
+            transition: background 0.2s;
+        }
+
+        .btn-allocate:hover {
+            background: var(--ivas-dark-yellow);
+        }
+
+        /* Number Display Card */
+        .allocated-box {
+            display: none;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .allocated-box.show {
+            display: flex;
+        }
+
+        .allocated-num {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #1e40af;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-copy-num {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Received OTP / SMS Logs Section */
+        .sms-log-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sms-item {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid var(--card-border);
+            position: relative;
+        }
+
+        .sms-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .badge-number {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .badge-otp {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sms-text {
+            font-size: 0.85rem;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .sms-time {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .floating-chat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            background: #f97316;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 99;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Notification Toast -->
+    <div id="topToast" class="top-toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMsg">Action completed successfully!</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        </div>
+        <div class="header-right">
+            <div class="utc-clock-box">
+                <span id="liveClockDisplay">2026-08-30 01:02:38</span>
+                <i class="fa-regular fa-clock"></i>
+            </div>
+            <button class="btn-logout-top">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="app-body">
+        <!-- Sidebar -->
+        <aside id="mainSidebar">
+            <div class="brand-header">
+                <div class="brand-title">IVAS SMS</div>
+                <div class="brand-subtitle">PREMIUM RATES</div>
+            </div>
+            <ul class="nav-list">
+                <li>
+                    <a href="#" class="btn-dashboard-main">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Get Custom Number Card -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-mobile-screen-button"></i> Get Custom Number
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Range Digits (rid):</label>
+                    <input type="text" id="ridInput" class="form-input" placeholder="e.g. 26134 (digits without XXX)">
+                </div>
+
+                <!-- National / Full Number Format Toggle -->
+                <div class="form-group">
+                    <label class="form-label">Select Number Format:</label>
+                    <div class="format-toggle-group">
+                        <div class="format-option">
+                            <input type="radio" id="fmtNational" name="numberFormat" value="national" checked>
+                            <label for="fmtNational"><i class="fa-solid fa-flag"></i> National Format</label>
+                        </div>
+                        <div class="format-option">
+                            <input type="radio" id="fmtFull" name="numberFormat" value="full">
+                            <label for="fmtFull"><i class="fa-solid fa-globe"></i> Full Number (+Code)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-allocate" onclick="allocateNumber()">
+                    <i class="fa-solid fa-bolt"></i> Allocate Number
+                </button>
+
+                <!-- Generated Number Display -->
+                <div id="allocatedBox" class="allocated-box">
+                    <div>
+                        <div style="font-size:0.7rem; color:#64748b; font-weight:700;">ALLOCATED NUMBER:</div>
+                        <div id="allocatedDisplay" class="allocated-num">01712345678</div>
+                    </div>
+                    <button class="btn-copy-num" onclick="copyAllocatedNumber()"><i class="fa-regular fa-copy"></i> Copy</button>
+                </div>
+            </div>
+
+            <!-- Live Incoming OTP Logs -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-inbox"></i> Live OTP & Message Stream
+                </div>
+
+                <div id="smsLogContainer" class="sms-log-container">
+                    <!-- Default State Message -->
+                    <div id="noSmsMessage" style="text-align:center; padding: 20px; color:#94a3b8; font-size:0.85rem;">
+                        No incoming SMS yet. Allocate a number to start receiving.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Chat Button -->
+    <div class="floating-chat-btn">
+        <i class="fa-solid fa-comment-dots"></i>
+    </div>
+
+    <script>
+        let currentAllocatedNumber = "";
+
+        // Clock display update
+        function updateClock() {
+            const now = new Date();
+            const year = now.getUTCFullYear();
+            const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(now.getUTCDate()).padStart(2, '0');
+            const hours = String(now.getUTCHours()).padStart(2, '0');
+            const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+            const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+            document.getElementById('liveClockDisplay').innerText = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Toggle Sidebar Mobile
+        function toggleSidebar() {
+            document.getElementById('mainSidebar').classList.toggle('open');
+        }
+
+        // Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById('topToast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Allocate Number Logic
+        function allocateNumber() {
+            const rid = document.getElementById('ridInput').value.trim();
+            const selectedFormat = document.querySelector('input[name="numberFormat"]:checked').value;
+
+            const baseDigits = rid ? rid : "26134";
+            const randomSuffix = Math.floor(100 + Math.random() * 900); // Generate 3 random digits
+            const rawDigits = baseDigits + randomSuffix;
+
+            // Apply Format logic
+            if (selectedFormat === 'national') {
+                // National Format (e.g. 017XXXXXX)
+                currentAllocatedNumber = rawDigits.startsWith('0') ? rawDigits : '017' + rawDigits;
+            } else {
+                // Full Number with Country Code (e.g. +88017XXXXXX)
+                const national = rawDigits.startsWith('0') ? rawDigits : '017' + rawDigits;
+                currentAllocatedNumber = '+880' + national.replace(/^0/, '');
+            }
+
+            // Display in box
+            document.getElementById('allocatedDisplay').innerText = currentAllocatedNumber;
+            document.getElementById('allocatedBox').classList.add('show');
+
+            showToast("Number Allocated Successfully!");
+
+            // Simulate incoming OTP after 3 seconds for demonstration
+            setTimeout(() => {
+                simulateIncomingOTP(currentAllocatedNumber);
+            }, 3000);
+        }
+
+        // Copy Allocated Number
+        function copyAllocatedNumber() {
+            if (!currentAllocatedNumber) return;
+            navigator.clipboard.writeText(currentAllocatedNumber);
+            showToast("Number copied to clipboard!");
+        }
+
+        // Simulate OTP Reception below
+        function simulateIncomingOTP(number) {
+            const container = document.getElementById('smsLogContainer');
+            const emptyMsg = document.getElementById('noSmsMessage');
+            if (emptyMsg) emptyMsg.style.display = 'none';
+
+            const otpCode = Math.floor(100000 + Math.random() * 900000);
+            const now = new Date().toLocaleTimeString();
+
+            const smsCard = document.createElement('div');
+            smsCard.className = 'sms-item';
+            smsCard.innerHTML = `
+                <div class="sms-item-header">
+                    <span class="badge-number"><i class="fa-solid fa-phone"></i> ${number}</span>
+                    <span class="badge-otp"><i class="fa-solid fa-key"></i> OTP: ${otpCode}</span>
+                </div>
+                <div class="sms-text">Your verification code is <b>${otpCode}</b>. Do not share it with anyone.</div>
+                <div class="sms-time"><i class="fa-regular fa-clock"></i> Received at ${now}</div>
+            `;
+
+            container.prepend(smsCard);
+            showToast("New OTP Received for " + number);
+        }
+    </script>
+</body>
+</html>
