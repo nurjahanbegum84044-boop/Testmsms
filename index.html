@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VOLTX Mobile OTP Receiver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #090d16;
+            --card-bg: #131b2e;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-yellow: #f59e0b;
+            --danger-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 75px;
+        }
+
+        .app-header {
+            background: rgba(19, 27, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 14px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .listener-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .listener-info h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .listener-info p {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--accent-green); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .content-area { padding: 0 15px; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        /* Number Format Radio Selector */
+        .format-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            background: #090d16;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .format-btn {
+            flex: 1;
+            text-align: center;
+        }
+
+        .format-btn input[type="radio"] { display: none; }
+
+        .format-btn label {
+            display: block;
+            padding: 8px 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .format-btn input[type="radio"]:checked + label {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        .btn-action {
+            width: 100%;
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-action:active { transform: scale(0.98); }
+
+        .num-box {
+            display: none;
+            background: #0f172a;
+            border: 1px dashed var(--accent-green);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .num-box.show { display: flex; }
+
+        .num-text {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-green);
+        }
+
+        .btn-copy {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .otp-card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .otp-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .otp-body {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            word-break: break-word;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            width: 25%;
+        }
+
+        .nav-item i { font-size: 1.1rem; }
+        .nav-item.active { color: var(--accent-blue); font-weight: 700; }
+
+        .toast-msg {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-green);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 2000;
+            transition: top 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .toast-msg.show { top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast-msg">Notification</div>
+
+    <div class="app-header">
+        <div class="brand-title">
+            <i class="fa-solid fa-bolt" style="color:var(--accent-yellow)"></i> VOLTX SMS
+        </div>
+        <div id="bgStatus" style="font-size:0.75rem; color:var(--text-sub); display:flex; align-items:center; gap:5px;">
+            <span style="height:8px; width:8px; background:var(--text-sub); border-radius:50%; display:inline-block;" id="statusDot"></span> Standby
+        </div>
+    </div>
+
+    <!-- 24/7 Background Listener Switch -->
+    <div class="listener-card">
+        <div class="listener-info">
+            <h4><i class="fa-solid fa-bell"></i> 24/7 Background Listener</h4>
+            <p>প্রতি ৫০০ms পর পর অটোমেটিক SMS চেক করবে</p>
+        </div>
+        <label class="switch">
+            <input type="checkbox" id="listenerToggle" onchange="toggleListener(this.checked)">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="content-area">
+        <div id="mainView">
+            <div class="card">
+                <div class="card-title">Get Real Number</div>
+                <input type="text" id="ridInput" class="form-input" placeholder="Enter Range ID (rid)" value="26134">
+
+                <!-- Number Format Switcher -->
+                <div class="format-selector">
+                    <div class="format-btn">
+                        <input type="radio" id="fmtFull" name="numFormat" value="full" checked>
+                        <label for="fmtFull">Full Number (+)</label>
+                    </div>
+                    <div class="format-btn">
+                        <input type="radio" id="fmtClean" name="numFormat" value="clean">
+                        <label for="fmtClean">Without + / Code</label>
+                    </div>
+                </div>
+
+                <button class="btn-action" onclick="allocateNumber()"><i class="fa-solid fa-plus"></i> Allocate & Auto Copy</button>
+
+                <div id="numResult" class="num-box">
+                    <div>
+                        <div style="font-size:0.7rem; color:var(--text-sub);">ALLOCATED & COPIED:</div>
+                        <div id="allocatedNum" class="num-text">----------</div>
+                    </div>
+                    <button class="btn-copy" onclick="copyNum()"><i class="fa-regular fa-copy"></i> Copy Again</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>Received OTPs (/success-otp)</span>
+                    <i class="fa-solid fa-rotate-right" onclick="fetchOtps(true)" style="cursor:pointer; color:var(--accent-blue);"></i>
+                </div>
+                <div id="otpContainer">
+                    <div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.85rem;">
+                        কোনো OTP পাওয়া যায়নি। Listener অন রাখুন।
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="consoleView" style="display:none;">
+            <div class="card">
+                <div class="card-title">Live Global Feed (/console)</div>
+                <div id="consoleFeedContainer">
+                    <div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.85rem;">লগ লোড হচ্ছে...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settingsView" style="display:none;">
+            <div class="card">
+                <div class="card-title">API Auth Settings</div>
+                <label style="font-size:0.8rem; color:var(--text-sub); margin-bottom:6px; display:block;">Enter mauthapi Key:</label>
+                <input type="text" id="apiKeyInput" class="form-input" placeholder="Paste your API Key here">
+                <button class="btn-action" onclick="saveApiKey()"><i class="fa-solid fa-floppy-disk"></i> Save Key</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('mainView', this)">
+            <i class="fa-solid fa-message"></i> SMS Portal
+        </button>
+        <button class="nav-item" onclick="switchTab('consoleView', this)">
+            <i class="fa-solid fa-rss"></i> Live Console
+        </button>
+        <button class="nav-item" onclick="switchTab('settingsView', this)">
+            <i class="fa-solid fa-gear"></i> Settings
+        </button>
+    </div>
+
+    <script>
+        const API_BASE = "https://api.2oo9.cloud/MXS47FLFX0U/tnevs/@public/api";
+        let listenerInterval = null;
+        let knownOtpIds = new Set();
+        let lastAllocatedData = null;
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function getApiKey() {
+            return localStorage.getItem('mauthapi_key') || "";
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if(!key) return showToast("API Key দিতে হবে!");
+            localStorage.setItem('mauthapi_key', key);
+            showToast("API Key সেভ হয়েছে!");
+        }
+
+        function switchTab(tabId, btn) {
+            document.getElementById('mainView').style.display = 'none';
+            document.getElementById('consoleView').style.display = 'none';
+            document.getElementById('settingsView').style.display = 'none';
+
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            btn.classList.add('active');
+
+            if(tabId === 'consoleView') fetchConsole();
+        }
+
+        function playAlertSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime); 
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15); 
+                
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch(e) { console.log(e); }
+        }
+
+        // 24/7 Background Listener Fix (Page Refresh persistent)
+        function toggleListener(enable) {
+            const toggle = document.getElementById('listenerToggle');
+            toggle.checked = enable;
+
+            if (enable) {
+                const key = getApiKey();
+                if (!key) {
+                    showToast("আগে Settings থেকে API Key সেভ করুন!");
+                    toggle.checked = false;
+                    localStorage.setItem('bg_listener_state', 'false');
+                    return;
+                }
+
+                if ("Notification" in window && Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+
+                localStorage.setItem('bg_listener_state', 'true');
+                document.getElementById('statusDot').style.background = 'var(--accent-green)';
+                document.getElementById('bgStatus').childNodes[2].nodeValue = ' Listening 24/7';
+
+                if (!listenerInterval) {
+                    fetchOtps();
+                    // Fast Millisecond Polling Speed (500ms = 0.5s)
+                    listenerInterval = setInterval(fetchOtps, 500);
+                }
+            } else {
+                localStorage.setItem('bg_listener_state', 'false');
+                if (listenerInterval) {
+                    clearInterval(listenerInterval);
+                    listenerInterval = null;
+                }
+                document.getElementById('statusDot').style.background = 'var(--text-sub)';
+                document.getElementById('bgStatus').childNodes[2].nodeValue = ' Standby';
+            }
+        }
+
+        // Allocate Number + Automatic Copy + Format Selector Logic
+        async function allocateNumber() {
+            const apiKey = getApiKey();
+            if(!apiKey) return showToast("Settings-এ API Key সেট করুন!");
+
+            const rid = document.getElementById('ridInput').value.trim() || "26134";
+            try {
+                showToast("নাম্বার রিকোয়েস্ট করা হচ্ছে...");
+                const res = await fetch(`${API_BASE}/getnum`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'mauthapi': apiKey
+                    },
+                    body: JSON.stringify({ rid: rid })
+                });
+                const json = await res.json();
+
+                if (json.meta && json.meta.code === 200 && json.data) {
+                    lastAllocatedData = json.data;
+                    updateDisplayedNumber();
+                    document.getElementById('numResult').classList.add('show');
+                    
+                    // Automatic copy to clipboard
+                    copyNum(true);
+                } else {
+                    showToast(json.message || "নাম্বার পাওয়া যায়নি!");
+                }
+            } catch(e) {
+                showToast("নেটওয়ার্ক সমস্যা!");
+            }
+        }
+
+        function getSelectedFormatNumber() {
+            if (!lastAllocatedData) return "";
+            const fmt = document.querySelector('input[name="numFormat"]:checked').value;
+            if (fmt === 'full') {
+                return lastAllocatedData.full_number || lastAllocatedData.national_number;
+            } else {
+                // Return clean number without country code and without '+'
+                return lastAllocatedData.no_plus_number || lastAllocatedData.national_number;
+            }
+        }
+
+        function updateDisplayedNumber() {
+            const num = getSelectedFormatNumber();
+            if (num) {
+                document.getElementById('allocatedNum').innerText = num;
+            }
+        }
+
+        // Listen for format radio toggle changes
+        document.querySelectorAll('input[name="numFormat"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (lastAllocatedData) {
+                    updateDisplayedNumber();
+                    copyNum(true);
+                }
+            });
+        });
+
+        function copyNum(isAuto = false) {
+            const num = document.getElementById('allocatedNum').innerText;
+            if(num && num !== "----------") {
+                navigator.clipboard.writeText(num);
+                showToast(isAuto ? "নাম্বার পেয়ে অটো-কপি হয়েছে! 🚀" : "নাম্বার কপি হয়েছে!");
+            }
+        }
+
+        // Fetch OTPs
+        async function fetchOtps(isManual = false) {
+            const apiKey = getApiKey();
+            if(!apiKey) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/success-otp`, {
+                    headers: { 'mauthapi': apiKey }
+                });
+                const json = await res.json();
+
+                if (json.meta && json.meta.code === 200 && json.data && json.data.otps) {
+                    renderOtps(json.data.otps);
+                    if(isManual) showToast("রিফ্রেশ কমপ্লিট!");
+                }
+            } catch(e) { console.warn(e); }
+        }
+
+        function renderOtps(otps) {
+            const container = document.getElementById('otpContainer');
+            if(!otps || otps.length === 0) return;
+
+            let hasNewOtp = false;
+
+            otps.forEach(item => {
+                if (!knownOtpIds.has(item.otp_id)) {
+                    knownOtpIds.add(item.otp_id);
+                    hasNewOtp = true;
+                }
+            });
+
+            if (hasNewOtp && knownOtpIds.size > otps.length) {
+                playAlertSound();
+                showToast("🔥 নতুন OTP মেসেজ এসেছে!");
+
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification("VOLTX SMS Alert", {
+                        body: otps[0].message,
+                        icon: "https://cdn-icons-png.flaticon.com/512/893/893257.png"
+                    });
+                }
+            }
+
+            container.innerHTML = "";
+            otps.forEach(item => {
+                const timeStr = new Date(item.time).toLocaleTimeString();
+                const card = document.createElement('div');
+                card.className = 'otp-card';
+                card.innerHTML = `
+                    <div class="otp-header">
+                        <span><i class="fa-solid fa-phone"></i> ${item.number}</span>
+                        <span>${timeStr}</span>
+                    </div>
+                    <div class="otp-body">${item.message}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function fetchConsole() {
+            const apiKey = getApiKey();
+            try {
+                const res = await fetch(`${API_BASE}/console`, {
+                    headers: apiKey ? { 'mauthapi': apiKey } : {}
+                });
+                const json = await res.json();
+
+                if (json.meta && json.meta.code === 200 && json.data && json.data.hits) {
+                    const container = document.getElementById('consoleFeedContainer');
+                    container.innerHTML = "";
+                    json.data.hits.forEach(hit => {
+                        const div = document.createElement('div');
+                        div.className = 'otp-card';
+                        div.innerHTML = `
+                            <div class="otp-header">
+                                <span>Range: ${hit.range}</span>
+                                <span>App: ${hit.sid || 'Service'}</span>
+                            </div>
+                            <div class="otp-body" style="color:var(--text-main); font-weight:600; font-size:0.85rem;">${hit.message}</div>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch(e) { console.warn(e); }
+        }
+
+        // Page Load Init
+        window.onload = function() {
+            document.getElementById('apiKeyInput').value = getApiKey();
+            
+            // Restore background listener status after refresh
+            const isListenerSavedActive = localStorage.getItem('bg_listener_state') === 'true';
+            if (isListenerSavedActive) {
+                toggleListener(true);
+            }
+        };
+    </script>
+</body>
+</html>
