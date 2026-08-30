@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iVAS SMS Portal - Advanced Live Feed</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandYellow: '#ffcc00',
+                        brandDark: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased">
+
+    <header class="bg-brandYellow shadow-md sticky top-0 z-50 px-4 py-2.5 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <button id="sidebarToggle" class="text-gray-900 text-xl focus:outline-none">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <span id="currentTime" class="font-bold text-xs sm:text-sm text-gray-900">2026-08-29 16:57:14</span>
+            <i class="fa-regular fa-clock text-xs text-gray-700"></i>
+        </div>
+        <div>
+            <button onclick="alert('Logged out')" class="bg-gray-900 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center space-x-1 hover:bg-black transition">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <div id="otpNotification" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 bg-emerald-500 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center space-x-3 transition-all duration-300 opacity-0 pointer-events-none">
+        <i class="fa-solid fa-bell text-xl animate-bounce"></i>
+        <div>
+            <p class="font-bold text-sm" id="notifText">New OTP Received on 23274207732!</p>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto p-4 space-y-4">
+        
+        <div class="bg-white rounded-xl shadow-md p-4 border-t-4 border-brandYellow">
+            <h3 class="font-bold text-gray-800 mb-3 flex items-center space-x-2 text-sm">
+                <i class="fa-solid fa-bolt text-brandYellow"></i>
+                <span>Live Feed & Top Applications Access</span>
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-gray-50 border rounded-lg p-3 text-center">
+                    <div class="text-orange-500 text-2xl mb-1"><i class="fa-solid fa-comments"></i></div>
+                    <h4 class="font-bold text-sm text-gray-800">Botim</h4>
+                    <p class="text-xs text-gray-500">3 messages</p>
+                </div>
+                <div class="bg-gray-50 border rounded-lg p-3 text-center">
+                    <div class="text-orange-500 text-2xl mb-1"><i class="fa-solid fa-comment-sms"></i></div>
+                    <h4 class="font-bold text-sm text-gray-800">General SMS</h4>
+                    <p class="text-xs text-gray-500">31 messages</p>
+                </div>
+                <div class="bg-gray-50 border rounded-lg p-3 text-center">
+                    <div class="text-blue-600 text-2xl mb-1"><i class="fa-brands fa-facebook"></i></div>
+                    <h4 class="font-bold text-sm text-gray-800">Facebook</h4>
+                    <p class="text-xs text-gray-500">14 messages</p>
+                </div>
+                <div class="bg-gray-50 border rounded-lg p-3 text-center">
+                    <div class="text-gray-900 text-2xl mb-1"><i class="fa-brands fa-apple"></i></div>
+                    <h4 class="font-bold text-sm text-gray-800">Apple</h4>
+                    <p class="text-xs text-gray-500">2 messages</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-600 text-white rounded-xl shadow p-4 text-center">
+                <h2 class="text-3xl font-extrabold" id="smsTodayCount">50</h2>
+                <p class="text-xs uppercase tracking-wider font-semibold mt-1 text-slate-200">SMS Today</p>
+            </div>
+            <div class="bg-brandYellow text-gray-900 rounded-xl shadow p-4 text-center cursor-pointer hover:bg-yellow-400 transition" onclick="simulateNewNumberAllocation()">
+                <h2 class="text-3xl font-extrabold" id="myNumbersCount">5</h2>
+                <p class="text-xs uppercase tracking-wider font-semibold mt-1">My Numbers</p>
+            </div>
+            <div class="bg-white border rounded-xl shadow p-4 text-center">
+                <h2 class="text-3xl font-extrabold text-red-500">0</h2>
+                <p class="text-xs uppercase tracking-wider font-semibold mt-1 text-gray-500">UNPAID</p>
+            </div>
+            <div class="bg-white border rounded-xl shadow p-4 text-center">
+                <h2 class="text-3xl font-extrabold text-emerald-600" id="revenueVal">$0.00</h2>
+                <p class="text-xs uppercase tracking-wider font-semibold mt-1 text-gray-500">REVENUE</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-4 space-y-3">
+            <h4 class="font-bold text-xs uppercase text-gray-500 tracking-wider">Advanced Automation Triggers</h4>
+            <div class="flex space-x-2">
+                <button onclick="triggerSimulatedOtp()" class="flex-1 bg-brandDark text-white py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition shadow">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1 text-brandYellow"></i> Test Auto OTP & Sound
+                </button>
+                <button onclick="triggerAutoCopy('+447404333228')" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition shadow">
+                    <i class="fa-solid fa-copy mr-1"></i> Test Auto Copy Number
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="fixed bottom-5 right-5 z-40">
+        <button onclick="triggerSimulatedOtp()" class="bg-orange-500 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:bg-orange-600 transition transform hover:scale-105">
+            <i class="fa-solid fa-comment-dots"></i>
+        </button>
+    </div>
+
+    <script>
+        // Web Audio API to generate beep/notification sound without needing external audio files
+        function playBeepSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+                oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
+                
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            } catch (e) {
+                console.log("Audio context prevented or not supported:", e);
+            }
+        }
+
+        // Automatic Clipboard Copy Function
+        function triggerAutoCopy(textToCopy) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showNotification(`Successfully Copied: ${textToCopy}`);
+                playBeepSound();
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Show floating notification banner
+        function showNotification(message) {
+            const notif = document.getElementById('otpNotification');
+            document.getElementById('notifText').innerText = message;
+            
+            notif.classList.remove('opacity-0', 'pointer-events-none');
+            notif.classList.add('opacity-100');
+
+            setTimeout(() => {
+                notif.classList.remove('opacity-100');
+                notif.classList.add('opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        // Simulate incoming OTP or number assignment automatically
+        function triggerSimulatedOtp() {
+            const randomNum = "232" + Math.floor(100000000 + Math.random() * 900000000);
+            playBeepSound();
+            showNotification(`New OTP Received on ${randomNum}!`);
+            
+            // Auto copy the number / OTP content automatically
+            navigator.clipboard.writeText(randomNum);
+
+            // Increment numbers dynamically for realism
+            let countEl = document.getElementById('smsTodayCount');
+            countEl.innerText = parseInt(countEl.innerText) + 1;
+        }
+
+        function simulateNewNumberAllocation() {
+            const newNum = "+44740" + Math.floor(1000000 + Math.random() * 9000000);
+            triggerAutoCopy(newNum);
+            let numEl = document.getElementById('myNumbersCount');
+            numEl.innerText = parseInt(numEl.innerText) + 1;
+        }
+
+        // Live Clock Timer Updater
+        setInterval(() => {
+            const now = new Date();
+            const dateStr = now.toISOString().replace('T', ' ').substring(0, 19);
+            document.getElementById('currentTime').innerText = dateStr;
+        }, 1000);
+
+        // Optional: Periodic automatic background simulation (every 30 seconds)
+        setInterval(() => {
+            // Uncomment if you want automatic background simulation triggers
+            // triggerSimulatedOtp();
+        }, 30000);
+    </script>
+</body>
+</html>
